@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Lock, ArrowLeft, CheckCircle } from "lucide-react";
+import { Lock, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -10,12 +10,13 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/reset-password" });
-  const token = search.token as string;
+  const token = new URLSearchParams(window.location.search).get("token");
   
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +63,7 @@ function ResetPasswordPage() {
           {/* Left: brand */}
           <div className="neu relative flex flex-col justify-between p-8 md:p-12">
             <div className="flex items-center gap-3">
-              <div className="neu-accent grid h-11 w-11 place-items-center font-bold">AF</div>
+              <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
               <div>
                 <div className="font-display text-xl font-semibold">AssetFlow</div>
                 <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -119,7 +120,7 @@ function ResetPasswordPage() {
         {/* Left: brand */}
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center gap-3">
-            <div className="neu-accent grid h-11 w-11 place-items-center font-bold">AF</div>
+            <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
             <div>
               <div className="font-display text-xl font-semibold">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -163,24 +164,44 @@ function ResetPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <label className="block">
                 <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">New Password</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="neu-inset w-full rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="neu-inset w-full rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </label>
 
               <label className="block">
                 <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Confirm New Password</span>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="neu-inset w-full rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="neu-inset w-full rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </label>
 
               <button
