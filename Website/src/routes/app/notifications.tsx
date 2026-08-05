@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, Boxes, CalendarCheck, ArrowLeftRight, Wrench, ShieldCheck } from "lucide-react";
+import { Bell, BellOff, Boxes, CalendarCheck, ArrowLeftRight, Wrench, ShieldCheck } from "lucide-react";
 import { NeuCard, PageHeader, Badge } from "@/components/layout/ui";
 import { notificationsApi } from "@/lib/api";
 
@@ -34,15 +34,29 @@ function NotificationsPage() {
         title="Notifications"
         subtitle="All updates from assets, bookings, transfers, maintenance, and audits."
         actions={
-          <button className="neu-sm inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm">
-            <Bell className="h-4 w-4" /> Mark all read
-          </button>
+          notifications.length > 0 ? (
+            <button className="neu-sm inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm">
+              <Bell className="h-4 w-4" /> Mark all read
+            </button>
+          ) : undefined
         }
       />
-      <NeuCard>
-        {loading ? (
-          <div className="text-center text-muted-foreground py-10">Loading...</div>
-        ) : (
+      {loading ? (
+        <NeuCard>
+          <div className="text-center text-muted-foreground py-10">Loading notifications...</div>
+        </NeuCard>
+      ) : notifications.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl p-12 text-center">
+          <div className="neu-inset mb-4 grid h-16 w-16 place-items-center rounded-2xl text-muted-foreground">
+            <BellOff className="h-8 w-8 opacity-60" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">No notifications yet</h3>
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+            You're all caught up! System updates regarding asset transfers, maintenance requests, and audit logs will appear here.
+          </p>
+        </div>
+      ) : (
+        <NeuCard>
           <ul className="space-y-2">
             {notifications.map((n: any) => {
               const Icon = ICONS[n.type as keyof typeof ICONS] || Boxes;
@@ -63,8 +77,8 @@ function NotificationsPage() {
               );
             })}
           </ul>
-        )}
-      </NeuCard>
+        </NeuCard>
+      )}
     </div>
   );
 }
