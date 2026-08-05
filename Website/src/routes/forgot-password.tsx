@@ -41,7 +41,7 @@ function ForgotPasswordPage() {
         {/* Left: brand */}
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center gap-3">
-            <div className="neu-accent grid h-11 w-11 place-items-center font-bold">AF</div>
+            <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
             <div>
               <div className="font-display text-xl font-semibold">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
