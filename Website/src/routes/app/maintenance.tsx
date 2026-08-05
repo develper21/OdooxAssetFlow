@@ -80,7 +80,9 @@ function MaintenancePage() {
                   >
                     <option value="">Select {f.l.toLowerCase()}</option>
                     {f.options.map((opt: any) => (
-                      <option key={opt._id} value={opt._id}>{opt.name} ({opt.serialNumber})</option>
+                      <option key={opt._id} value={opt._id}>
+                        {opt.serialNumber ? `${opt.name} (${opt.serialNumber})` : opt.name}
+                      </option>
                     ))}
                   </select>
                 ) : (
