@@ -2,31 +2,36 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard, Boxes, Users, Building2, Tag, CalendarCheck, Wrench,
-  ArrowLeftRight, ClipboardList, BarChart3, Bell, LogOut, Moon, Sun,
+  ArrowLeftRight, BarChart3, Bell, LogOut, Moon, Sun,
   Menu, Search, ChevronRight, ShieldCheck,
 } from "lucide-react";
 import { useSession, type Role } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
-  to: string;
+  tab: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   roles: Role[];
 }
 
+// Helper function to generate URL based on role and tab
+const generateRoleUrl = (role: string, tab: string): string => {
+  return `/u/role/${role}/tab/${tab}`;
+};
+
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { to: "/assets", label: "Asset Registry", icon: Boxes, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { to: "/allocations", label: "Allocations", icon: ArrowLeftRight, roles: ["admin", "asset_manager", "department_head"] },
-  { to: "/bookings", label: "Bookings", icon: CalendarCheck, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { to: "/maintenance", label: "Maintenance", icon: Wrench, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { to: "/audits", label: "Audits", icon: ShieldCheck, roles: ["admin", "asset_manager"] },
-  { to: "/departments", label: "Departments", icon: Building2, roles: ["admin"] },
-  { to: "/categories", label: "Categories", icon: Tag, roles: ["admin", "asset_manager"] },
-  { to: "/employees", label: "Employees", icon: Users, roles: ["admin"] },
-  { to: "/reports", label: "Reports", icon: BarChart3, roles: ["admin", "asset_manager", "department_head"] },
-  { to: "/notifications", label: "Notifications", icon: Bell, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  { tab: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  { tab: "assets", label: "Asset Registry", icon: Boxes, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  { tab: "allocations", label: "Allocations", icon: ArrowLeftRight, roles: ["admin", "asset_manager", "department_head"] },
+  { tab: "bookings", label: "Bookings", icon: CalendarCheck, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  { tab: "maintenance", label: "Maintenance", icon: Wrench, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  { tab: "audits", label: "Audits", icon: ShieldCheck, roles: ["admin", "asset_manager"] },
+  { tab: "departments", label: "Departments", icon: Building2, roles: ["admin"] },
+  { tab: "categories", label: "Categories", icon: Tag, roles: ["admin", "asset_manager"] },
+  { tab: "employees", label: "Employees", icon: Users, roles: ["admin"] },
+  { tab: "reports", label: "Reports", icon: BarChart3, roles: ["admin", "asset_manager", "department_head"] },
+  { tab: "notifications", label: "Notifications", icon: Bell, roles: ["admin", "asset_manager", "department_head", "employee"] },
 ];
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -58,17 +63,17 @@ export function AppLayout() {
   if (!hydrated || !user) return null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex max-w-[1600px] gap-6 p-4 md:p-6">
+    <div className="h-screen w-screen overflow-hidden bg-background text-foreground">
+      <div className="flex h-full w-full gap-5 p-4 md:p-6 overflow-hidden">
         {/* Sidebar */}
         <aside
           className={cn(
-            "neu fixed inset-y-4 left-4 z-40 flex h-[calc(100vh-2rem)] w-64 flex-col p-5 transition-transform md:static md:inset-auto md:translate-x-0",
+            "neu fixed inset-y-4 left-4 z-40 flex h-[calc(100vh-2rem)] w-64 flex-col p-5 transition-transform md:static md:inset-auto md:translate-x-0 md:h-full md:shrink-0",
             open ? "translate-x-0" : "-translate-x-[110%]",
           )}
         >
           <div className="mb-6 flex items-center gap-3">
-            <div className="neu-accent grid h-10 w-10 place-items-center font-bold">AF</div>
+            <img src="/favicon.png" alt="AssetFlow Logo" className="h-10 w-10 rounded-xl object-contain shadow-sm" />
             <div>
               <div className="font-display text-lg font-semibold leading-tight">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -85,19 +90,23 @@ export function AppLayout() {
             </div>
           </div>
 
-          <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
+          <nav className="flex-1 space-y-1 overflow-y-auto pr-1 custom-scrollbar">
             {items.map((n) => {
-              const active = loc.pathname === n.to || (n.to !== "/dashboard" && loc.pathname.startsWith(n.to));
+              const currentUrl = generateRoleUrl(user.role, n.tab);
+              const isDashboard = n.tab === "dashboard";
+              const active =
+                loc.pathname === currentUrl ||
+                (!isDashboard && loc.pathname.startsWith(currentUrl));
               const Icon = n.icon;
               return (
                 <Link
-                  key={n.to}
-                  to={n.to}
+                  key={n.tab}
+                  to={currentUrl}
                   onClick={() => setOpen(false)}
                   className={cn(
                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all",
                     active
-                      ? "neu-accent font-semibold"
+                      ? "neu-accent text-primary-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
@@ -128,9 +137,10 @@ export function AppLayout() {
           />
         )}
 
-        {/* Main */}
-        <main className="min-w-0 flex-1 space-y-6">
-          <header className="neu flex items-center gap-3 p-3 md:p-4">
+        {/* Right Section Container */}
+        <div className="flex flex-1 flex-col h-full min-w-0 overflow-hidden">
+          {/* Top Search Bar (Fixed) */}
+          <header className="neu rounded-2xl flex shrink-0 items-center gap-3 p-3 md:p-4 mb-4 z-10">
             <button
               className="neu-sm grid h-10 w-10 place-items-center md:hidden"
               onClick={() => setOpen(true)}
@@ -151,7 +161,7 @@ export function AppLayout() {
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-            <Link to="/notifications" className="neu-sm relative grid h-10 w-10 place-items-center">
+            <Link to={generateRoleUrl(user.role, "notifications")} className="neu-sm relative grid h-10 w-10 place-items-center">
               <Bell className="h-4 w-4" />
               {unread > 0 && (
                 <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
@@ -161,12 +171,15 @@ export function AppLayout() {
             </Link>
           </header>
 
-          <Outlet />
+          {/* Scrollable Content Container */}
+          <main className="flex-1 overflow-y-auto min-h-0 custom-scrollbar px-1 py-1 pr-3 space-y-6">
+            <Outlet />
 
-          <footer className="pb-6 pt-2 text-center text-xs text-muted-foreground">
-            AssetFlow · Demo build · {ROLE_LABEL[user.role]} view
-          </footer>
-        </main>
+            <footer className="pb-6 pt-2 text-center text-xs text-muted-foreground">
+              AssetFlow · Demo build · {ROLE_LABEL[user.role]} view
+            </footer>
+          </main>
+        </div>
       </div>
     </div>
   );
