@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { SessionProvider, useSession } from "./lib/session";
@@ -27,6 +27,43 @@ import Reports from "./routes/app/reports";
 import Notifications from "./routes/app/notifications";
 import Profile from "./routes/app/profile";
 
+// Tab component mapping
+const tabComponents: Record<string, React.ComponentType> = {
+  dashboard: Dashboard,
+  assets: Assets,
+  allocations: Allocations,
+  bookings: Bookings,
+  maintenance: Maintenance,
+  audits: Audits,
+  departments: Departments,
+  categories: Categories,
+  employees: Employees,
+  reports: Reports,
+  notifications: Notifications,
+  profile: Profile,
+};
+
+// Role-based route component
+function RoleBasedRoute() {
+  const { user } = useSession();
+  const { role, tab } = useParams<{ role: string; tab: string }>();
+
+  // Validate role matches user's role
+  if (!user || role !== user.role) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Get the component for the tab
+  const Component = tabComponents[tab || "dashboard"];
+
+  // If tab doesn't exist, redirect to dashboard
+  if (!Component) {
+    return <Navigate to={`/u/role/${user.role}/tab/dashboard`} replace />;
+  }
+
+  return <Component />;
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -38,15 +75,15 @@ const queryClient = new QueryClient({
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, hydrated } = useSession();
-  
+
   if (!hydrated) {
     return null; // or loading spinner
   }
-  
+
   if (!user) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
@@ -61,45 +98,47 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            
-            {/* Protected routes */}
+
+            {/* Protected role-based routes */}
             <Route
-              path="/app"
+              path="/u/role/:role/tab/:tab"
               element={
                 <ProtectedRoute>
                   <AppLayout />
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Navigate to="/app/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="assets" element={<Assets />} />
-              <Route path="allocations" element={<Allocations />} />
-              <Route path="bookings" element={<Bookings />} />
-              <Route path="maintenance" element={<Maintenance />} />
-              <Route path="audits" element={<Audits />} />
-              <Route path="departments" element={<Departments />} />
-              <Route path="categories" element={<Categories />} />
-              <Route path="employees" element={<Employees />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="profile" element={<Profile />} />
+              <Route index element={<RoleBasedRoute />} />
+              <Route path="*" element={<RoleBasedRoute />} />
             </Route>
-            
+
             {/* Redirect old routes to new structure */}
-            <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
-            <Route path="/assets" element={<Navigate to="/app/assets" replace />} />
-            <Route path="/allocations" element={<Navigate to="/app/allocations" replace />} />
-            <Route path="/bookings" element={<Navigate to="/app/bookings" replace />} />
-            <Route path="/maintenance" element={<Navigate to="/app/maintenance" replace />} />
-            <Route path="/audits" element={<Navigate to="/app/audits" replace />} />
-            <Route path="/departments" element={<Navigate to="/app/departments" replace />} />
-            <Route path="/categories" element={<Navigate to="/app/categories" replace />} />
-            <Route path="/employees" element={<Navigate to="/app/employees" replace />} />
-            <Route path="/reports" element={<Navigate to="/app/reports" replace />} />
-            <Route path="/notifications" element={<Navigate to="/app/notifications" replace />} />
-            <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
-            
+            <Route path="/app" element={<Navigate to="/" replace />} />
+            <Route path="/app/dashboard" element={<Navigate to="/" replace />} />
+            <Route path="/app/assets" element={<Navigate to="/" replace />} />
+            <Route path="/app/allocations" element={<Navigate to="/" replace />} />
+            <Route path="/app/bookings" element={<Navigate to="/" replace />} />
+            <Route path="/app/maintenance" element={<Navigate to="/" replace />} />
+            <Route path="/app/audits" element={<Navigate to="/" replace />} />
+            <Route path="/app/departments" element={<Navigate to="/" replace />} />
+            <Route path="/app/categories" element={<Navigate to="/" replace />} />
+            <Route path="/app/employees" element={<Navigate to="/" replace />} />
+            <Route path="/app/reports" element={<Navigate to="/" replace />} />
+            <Route path="/app/notifications" element={<Navigate to="/" replace />} />
+            <Route path="/app/profile" element={<Navigate to="/" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/" replace />} />
+            <Route path="/assets" element={<Navigate to="/" replace />} />
+            <Route path="/allocations" element={<Navigate to="/" replace />} />
+            <Route path="/bookings" element={<Navigate to="/" replace />} />
+            <Route path="/maintenance" element={<Navigate to="/" replace />} />
+            <Route path="/audits" element={<Navigate to="/" replace />} />
+            <Route path="/departments" element={<Navigate to="/" replace />} />
+            <Route path="/categories" element={<Navigate to="/" replace />} />
+            <Route path="/employees" element={<Navigate to="/" replace />} />
+            <Route path="/reports" element={<Navigate to="/" replace />} />
+            <Route path="/notifications" element={<Navigate to="/" replace />} />
+            <Route path="/profile" element={<Navigate to="/" replace />} />
+
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
