@@ -89,7 +89,11 @@ function AllocationsPage() {
                   >
                     <option value="">Select {f.l.toLowerCase()}</option>
                     {f.options.map((opt: any) => (
-                      <option key={opt._id} value={opt._id}>{f.n === 'asset' ? `${opt.name} (${opt.serialNumber})` : `${opt.firstName} ${opt.lastName}`}</option>
+                      <option key={opt._id} value={opt._id}>
+                        {f.n === 'asset'
+                          ? `${opt.name} (${opt.serialNumber})`
+                          : (opt.firstName ? `${opt.firstName} ${opt.lastName}` : opt.name)}
+                      </option>
                     ))}
                   </select>
                 ) : (
