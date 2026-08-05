@@ -1,8 +1,26 @@
 import { useEffect, useState } from "react";
-import { Tag, Plus } from "lucide-react";
+import {
+  Tag, Laptop, Tv, Armchair, Car, Monitor, Wrench, Smartphone, Headphones,
+  Server, HardDrive, Plus
+} from "lucide-react";
 import { NeuCard, PageHeader } from "@/components/layout/ui";
 import { toast } from "sonner";
 import { categoriesApi } from "@/lib/api";
+
+function getCategoryIcon(name: string = "") {
+  const lower = name.toLowerCase();
+  if (lower.includes("laptop") || lower.includes("notebook") || lower.includes("macbook")) return Laptop;
+  if (lower.includes("projector") || lower.includes("display") || lower.includes("screen") || lower.includes("tv")) return Tv;
+  if (lower.includes("furniture") || lower.includes("chair") || lower.includes("desk") || lower.includes("table")) return Armchair;
+  if (lower.includes("vehicle") || lower.includes("car") || lower.includes("truck") || lower.includes("auto")) return Car;
+  if (lower.includes("monitor") || lower.includes("desktop")) return Monitor;
+  if (lower.includes("tool") || lower.includes("equipment") || lower.includes("repair")) return Wrench;
+  if (lower.includes("mobile") || lower.includes("phone") || lower.includes("smartphone")) return Smartphone;
+  if (lower.includes("audio") || lower.includes("headphone") || lower.includes("speaker")) return Headphones;
+  if (lower.includes("server") || lower.includes("network") || lower.includes("router")) return Server;
+  if (lower.includes("storage") || lower.includes("drive") || lower.includes("disk")) return HardDrive;
+  return Tag;
+}
 
 function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -86,15 +104,18 @@ function CategoriesPage() {
         <div className="text-center text-muted-foreground py-10">Loading...</div>
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {categories.map((c: any) => (
-            <NeuCard key={c._id} className="text-center">
-              <div className="neu-inset mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl text-primary">
-                <Tag className="h-5 w-5" />
-              </div>
-              <div className="font-semibold">{c.name}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{c.assetCount || c.count || 0} items</div>
-            </NeuCard>
-          ))}
+          {categories.map((c: any) => {
+            const CategoryIcon = getCategoryIcon(c.name);
+            return (
+              <NeuCard key={c._id} className="text-center">
+                <div className="neu-inset mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl text-primary">
+                  <CategoryIcon className="h-5 w-5" />
+                </div>
+                <div className="font-semibold">{c.name}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{c.assetCount || c.count || 0} items</div>
+              </NeuCard>
+            );
+          })}
         </div>
       )}
     </div>
