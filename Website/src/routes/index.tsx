@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSession, type Role } from "@/lib/session";
-import { Moon, Sun, ShieldCheck, Boxes, LayoutDashboard, User } from "lucide-react";
+import { Moon, Sun, ShieldCheck, Boxes, LayoutDashboard, User, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
@@ -18,11 +18,12 @@ function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role>("admin");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (hydrated && user) navigate("/dashboard");
+    if (hydrated && user) navigate(`/u/role/${user.role}/tab/dashboard`);
   }, [hydrated, user, navigate]);
 
   const submit = async (e: React.FormEvent) => {
@@ -47,7 +48,7 @@ function LoginPage() {
       };
       login(userData, response.token);
       toast.success("Login successful");
-      navigate("/dashboard");
+      navigate(`/u/role/${userData.role}/tab/dashboard`);
     } catch (error: any) {
       console.error('Login failed:', error);
       toast.error(error.message || "Login failed. Please check your credentials.");
@@ -63,7 +64,7 @@ function LoginPage() {
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="neu-accent grid h-11 w-11 place-items-center font-bold">AF</div>
+              <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
               <div>
                 <div className="font-display text-xl font-semibold">AssetFlow</div>
                 <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -115,21 +116,19 @@ function LoginPage() {
           <form onSubmit={submit} className="space-y-4">
             <label className="block">
               <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Role</span>
-              <div className="neu-inset rounded-xl bg-transparent">
+              <div className="relative">
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value as Role)}
-                  className="w-full bg-transparent px-4 py-3 text-sm outline-none"
+                  className="neu-inset w-full appearance-none rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none cursor-pointer text-foreground"
                 >
-                  {ROLES.map((r) => {
-                    const Icon = r.icon;
-                    return (
-                      <option key={r.role} value={r.role}>
-                        {r.label}
-                      </option>
-                    );
-                  })}
+                  {ROLES.map((r) => (
+                    <option key={r.role} value={r.role} className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium">
+                      {r.label}
+                    </option>
+                  ))}
                 </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               </div>
             </label>
             <label className="block">
@@ -144,13 +143,23 @@ function LoginPage() {
             </label>
             <label className="block">
               <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Password</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="neu-inset w-full rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="neu-inset w-full rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </label>
 
             <button
