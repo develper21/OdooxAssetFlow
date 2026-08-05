@@ -109,3 +109,49 @@ export function DataTable<T>({
     </div>
   );
 }
+
+export type ViewMode = "list" | "grid" | "kanban";
+
+export function ViewModeSwitcher({
+  viewMode,
+  onViewChange,
+}: {
+  viewMode: ViewMode;
+  onViewChange: (mode: ViewMode) => void;
+}) {
+  return (
+    <div className="neu-inset flex items-center rounded-xl p-1 gap-1">
+      <button
+        type="button"
+        onClick={() => onViewChange("list")}
+        className={cn(
+          "px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5",
+          viewMode === "list" ? "neu-accent text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <span>List</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => onViewChange("grid")}
+        className={cn(
+          "px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5",
+          viewMode === "grid" ? "neu-accent text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <span>Grid</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => onViewChange("kanban")}
+        className={cn(
+          "px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5",
+          viewMode === "kanban" ? "neu-accent text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <span>Kanban</span>
+      </button>
+    </div>
+  );
+}
+
