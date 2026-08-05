@@ -144,13 +144,13 @@
   --sidebar-ring: oklch(0.85 0.08 285);
 
   --shadow-neu:
-    8px 8px 20px oklch(0 0 0 / 0.55),
+    8px 8px 20px oklch(0 0 0 / 0.35),
     -6px -6px 16px oklch(1 0 0 / 0.04);
   --shadow-neu-sm:
-    4px 4px 10px oklch(0 0 0 / 0.5),
+    4px 4px 10px oklch(0 0 0 / 0.3),
     -3px -3px 8px oklch(1 0 0 / 0.04);
   --shadow-neu-inset:
-    inset 4px 4px 8px oklch(0 0 0 / 0.55),
+    inset 4px 4px 8px oklch(0 0 0 / 0.35),
     inset -4px -4px 8px oklch(1 0 0 / 0.04);
 }
 
@@ -188,6 +188,49 @@
 @utility neu-accent {
   background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 65%, white));
   color: var(--primary-foreground);
-  box-shadow: var(--shadow-neu);
-  border-radius: var(--radius);
+  box-shadow: var(--shadow-neu-sm);
+  border-radius: inherit;
 }
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+  padding-right: 2.5rem !important;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #ffffff;
+  color: #111827;
+}
+
+.dark select option {
+  background-color: #262626;
+  color: #f9fafb;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+
