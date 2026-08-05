@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { User, ArrowLeft } from "lucide-react";
+import { User, ArrowLeft, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { authApi, departmentsApi } from "@/lib/api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 function SignupPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -79,7 +81,7 @@ function SignupPage() {
         {/* Left: brand */}
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center gap-3">
-            <div className="neu-accent grid h-11 w-11 place-items-center font-bold">AF</div>
+            <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
             <div>
               <div className="font-display text-xl font-semibold">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -156,39 +158,62 @@ function SignupPage() {
 
             <label className="block">
               <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Department</span>
-              <select
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                disabled={loadingDepartments}
-                className="neu-inset w-full rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
-              >
-                <option value="">Select department</option>
-                {departments.map((dept: any) => (
-                  <option key={dept._id} value={dept._id}>{dept.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  disabled={loadingDepartments}
+                  className="neu-inset w-full appearance-none rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none cursor-pointer text-foreground"
+                >
+                  <option value="" className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium">Select department</option>
+                  {departments.map((dept: any) => (
+                    <option key={dept._id} value={dept._id} className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium">{dept.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              </div>
             </label>
 
             <label className="block">
               <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Password</span>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="••••••••"
-                className="neu-inset w-full rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="••••••••"
+                  className="neu-inset w-full rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </label>
 
             <label className="block">
               <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Confirm Password</span>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                placeholder="••••••••"
-                className="neu-inset w-full rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder="••••••••"
+                  className="neu-inset w-full rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </label>
 
             <button
