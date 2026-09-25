@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "build": "npm install --no-audit --no-fund && node --check src/server.js && echo 'Server build complete (plain Node.js, no transpilation required)'",
-    "dev": "nodemon src/server.js",
+    "dev": "node --watch src/server.js",
     "seed:admin": "node src/seeds/adminSeeder.js",
     "seed:assets": "node src/seeds/assetSeeder.js",
     "seed:bookings": "node src/seeds/bookingMaintenanceSeeder.js",
@@ -30,9 +30,6 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^9.0.3",
     "uuid": "^14.0.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.7"
   },
   "engines": {
     "node": ">=18.0.0"
