@@ -1,12 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
 import { Filter, Plus, QrCode, Download, Boxes } from "lucide-react";
-import { NeuCard, PageHeader, Badge, toneForStatus, ViewModeSwitcher, type ViewMode } from "@/components/layout/ui";
+import {
+  NeuCard,
+  PageHeader,
+  Badge,
+  toneForStatus,
+  ViewModeSwitcher,
+  type ViewMode,
+} from "@/components/layout/ui";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { assetsApi, categoriesApi, departmentsApi } from "@/lib/api";
+import {
+  refPersonName,
+  refName,
+  refSerial,
+  type Asset,
+  type AssetCategory,
+  type Department,
+  type FormRecord,
+} from "@/types";
 
-const STATUSES: ("Available" | "Allocated" | "Maintenance" | "Retired" | "All")[] = ["All", "Available", "Allocated", "Maintenance", "Retired"];
-const KANBAN_STAGES: ("Available" | "Allocated" | "Maintenance" | "Retired")[] = ["Available", "Allocated", "Maintenance", "Retired"];
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong. Please try again.";
+}
+
+const STATUSES: ("Available" | "Allocated" | "Maintenance" | "Retired" | "All")[] = [
+  "All",
+  "Available",
+  "Allocated",
+  "Maintenance",
+  "Retired",
+];
+const KANBAN_STAGES: ("Available" | "Allocated" | "Maintenance" | "Retired")[] = [
+  "Available",
+  "Allocated",
+  "Maintenance",
+  "Retired",
+];
 
 function AssetsPage() {
   const [q, setQ] = useState("");
@@ -14,9 +46,9 @@ function AssetsPage() {
   const [cat, setCat] = useState<string>("All");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showForm, setShowForm] = useState(false);
-  const [assets, setAssets] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [categories, setCategories] = useState<AssetCategory[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +59,7 @@ function AssetsPage() {
           categoriesApi.getAll(),
           departmentsApi.getAll(),
         ]);
-        
+
         setAssets(assetsData.assets || []);
         setCategories(categoriesData.categories || []);
         setDepartments(departmentsData.departments || []);
@@ -41,17 +73,20 @@ function AssetsPage() {
 
   const filtered = useMemo(() => {
     return assets.filter((a) => {
-      const assetStatus = a.status || 'Available';
-      const assetCategory = a.category?.name || a.category || '';
-      const assetTag = a.serialNumber || a.assetTag || a.tag || '';
-      const assetName = a.name || '';
-      const assigneeName = a.currentHolder?.firstName && a.currentHolder?.lastName 
-        ? `${a.currentHolder.firstName} ${a.currentHolder.lastName}` 
-        : a.assignee || '';
-      
+      const assetStatus = a.status || "Available";
+      const assetCategory =
+        refName(a.category) || (typeof a.category === "string" ? a.category : "");
+      const assetTag = a.serialNumber || a.assetTag || a.tag || "";
+      const assetName = a.name || "";
+      const assigneeName =
+        (typeof a.currentHolder === "object" && a.currentHolder) || a.assignee
+          ? refPersonName(a.currentHolder) || a.assignee || ""
+          : "";
+
       if (status !== "All" && assetStatus !== status) return false;
       if (cat !== "All" && assetCategory !== cat) return false;
-      if (q && !`${assetName} ${assetTag} ${assigneeName}`.toLowerCase().includes(q.toLowerCase())) return false;
+      if (q && !`${assetName} ${assetTag} ${assigneeName}`.toLowerCase().includes(q.toLowerCase()))
+        return false;
       return true;
     });
   }, [q, status, cat, assets]);
@@ -60,21 +95,22 @@ function AssetsPage() {
     e.preventDefault();
     try {
       const formData = new FormData(e.currentTarget);
-      const data: any = Object.fromEntries(formData.entries());
-      
+      const data: FormRecord = Object.fromEntries(formData.entries());
+
       // Convert types for FormData
       if (data.acquisitionCost) data.acquisitionCost = Number(data.acquisitionCost);
-      if (data.acquisitionDate) data.acquisitionDate = new Date(data.acquisitionDate).toISOString();
-      
+      if (data.acquisitionDate)
+        data.acquisitionDate = new Date(String(data.acquisitionDate)).toISOString();
+
       await assetsApi.create(data);
       toast.success("Asset registered successfully");
       setShowForm(false);
       // Refresh assets
       const assetsData = await assetsApi.getAll();
       setAssets(assetsData.assets || []);
-    } catch (error: any) {
-      console.error('Failed to create asset:', error);
-      toast.error(error.message || "Failed to register asset");
+    } catch (error: unknown) {
+      console.error("Failed to create asset:", error);
+      toast.error(toErrorMessage(error) || "Failed to register asset");
     }
   };
 
@@ -86,10 +122,16 @@ function AssetsPage() {
         actions={
           <>
             <ViewModeSwitcher viewMode={viewMode} onViewChange={setViewMode} />
-            <button className="neu-sm inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm" onClick={() => toast("Scanning QR…")}>
+            <button
+              className="neu-sm inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm"
+              onClick={() => toast("Scanning QR…")}
+            >
               <QrCode className="h-4 w-4" /> Scan
             </button>
-            <button className="neu-sm inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm" onClick={() => toast.success("Export queued")}>
+            <button
+              className="neu-sm inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm"
+              onClick={() => toast.success("Export queued")}
+            >
               <Download className="h-4 w-4" /> Export
             </button>
             <button
@@ -105,44 +147,62 @@ function AssetsPage() {
       {showForm && (
         <NeuCard>
           <h3 className="mb-4 text-lg font-semibold">Register a new asset</h3>
-          <form
-            onSubmit={handleCreateAsset}
-            className="grid grid-cols-1 gap-4 md:grid-cols-2"
-          >
+          <form onSubmit={handleCreateAsset} className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {[
               { l: "Asset tag", p: "AF-1050", n: "serialNumber" },
               { l: "Name", p: "MacBook Pro 16", n: "name" },
               { l: "Category", p: "Laptops", n: "category", isSelect: true, options: categories },
-              { l: "Department", p: "Engineering", n: "department", isSelect: true, options: departments },
+              {
+                l: "Department",
+                p: "Engineering",
+                n: "department",
+                isSelect: true,
+                options: departments,
+              },
               { l: "Location", p: "Building A, Floor 2", n: "location" },
               { l: "Purchase date", p: "2026-07-12", n: "acquisitionDate", type: "date" },
               { l: "Value (USD)", p: "2499", n: "acquisitionCost", type: "number" },
             ].map((f) => (
               <label key={f.n} className="block">
-                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">{f.l}</span>
+                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                  {f.l}
+                </span>
                 {f.isSelect ? (
-                  <select 
+                  <select
                     name={f.n}
                     className="neu-inset w-full rounded-xl bg-transparent px-3 py-2.5 text-sm outline-none"
                   >
                     <option value="">Select {f.l.toLowerCase()}</option>
-                    {f.options.map((opt: any) => (
-                      <option key={opt._id} value={opt._id}>{opt.name}</option>
+                    {f.options.map((opt) => (
+                      <option key={opt._id ?? opt.name} value={opt._id ?? opt.name}>
+                        {opt.name ?? ""}
+                      </option>
                     ))}
                   </select>
                 ) : (
-                  <input 
+                  <input
                     name={f.n}
                     type={f.type || "text"}
-                    placeholder={f.p} 
-                    className="neu-inset w-full rounded-xl bg-transparent px-3 py-2.5 text-sm outline-none" 
+                    placeholder={f.p}
+                    className="neu-inset w-full rounded-xl bg-transparent px-3 py-2.5 text-sm outline-none"
                   />
                 )}
               </label>
             ))}
             <div className="md:col-span-2 flex justify-end gap-2">
-              <button type="button" onClick={() => setShowForm(false)} className="neu-sm rounded-xl px-4 py-2.5 text-sm">Cancel</button>
-              <button type="submit" className="neu-accent rounded-xl px-4 py-2.5 text-sm font-semibold">Save asset</button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="neu-sm rounded-xl px-4 py-2.5 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="neu-accent rounded-xl px-4 py-2.5 text-sm font-semibold"
+              >
+                Save asset
+              </button>
             </div>
           </form>
         </NeuCard>
@@ -177,7 +237,9 @@ function AssetsPage() {
             className="neu-sm rounded-xl bg-transparent px-3 py-2 text-sm outline-none"
           >
             <option>All</option>
-            {categories.map((c: any) => <option key={c._id}>{c.name}</option>)}
+            {categories.map((c) => (
+              <option key={c._id}>{c.name}</option>
+            ))}
           </select>
         </div>
 
@@ -198,40 +260,70 @@ function AssetsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((a: any) => (
+                {filtered.map((a) => (
                   <tr key={a._id} className="border-t border-border/50 hover:bg-muted/30">
                     <td className="py-3 pr-3 font-mono text-xs">{a.serialNumber || a.assetTag}</td>
                     <td className="py-3 pr-3 font-medium">{a.name}</td>
-                    <td className="py-3 pr-3 text-muted-foreground">{a.category?.name || a.category}</td>
-                    <td className="py-3 pr-3 text-muted-foreground">{a.department?.name || a.department}</td>
-                    <td className="py-3 pr-3">{a.currentHolder?.firstName && a.currentHolder?.lastName ? `${a.currentHolder.firstName} ${a.currentHolder.lastName}` : <span className="text-muted-foreground">—</span>}</td>
-                    <td className="py-3 pr-3">${(a.acquisitionCost || a.value || 0).toLocaleString()}</td>
-                    <td className="py-3 pr-3"><Badge tone={toneForStatus(a.status)}>{a.status}</Badge></td>
+                    <td className="py-3 pr-3 text-muted-foreground">
+                      {refName(a.category) || (typeof a.category === "string" ? a.category : "—")}
+                    </td>
+                    <td className="py-3 pr-3 text-muted-foreground">
+                      {refName(a.department) ||
+                        (typeof a.department === "string" ? a.department : "—")}
+                    </td>
+                    <td className="py-3 pr-3">
+                      {refPersonName(a.currentHolder) !== "Unknown" ? (
+                        refPersonName(a.currentHolder)
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-3">
+                      ${(a.acquisitionCost || a.value || 0).toLocaleString()}
+                    </td>
+                    <td className="py-3 pr-3">
+                      <Badge tone={toneForStatus(a.status)}>{a.status}</Badge>
+                    </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">No assets match your filters.</td></tr>
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-muted-foreground">
+                      No assets match your filters.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((a: any) => (
-              <div key={a._id} className="neu-inset flex flex-col justify-between rounded-xl p-4 transition-transform hover:-translate-y-0.5">
+            {filtered.map((a) => (
+              <div
+                key={a._id}
+                className="neu-inset flex flex-col justify-between rounded-xl p-4 transition-transform hover:-translate-y-0.5"
+              >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs text-muted-foreground">{a.serialNumber || a.assetTag}</span>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {a.serialNumber || a.assetTag}
+                    </span>
                     <Badge tone={toneForStatus(a.status)}>{a.status}</Badge>
                   </div>
                   <h4 className="mt-2 text-base font-semibold">{a.name}</h4>
-                  <p className="text-xs text-muted-foreground">{a.category?.name || a.category || "General Asset"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {refName(a.category) ||
+                      (typeof a.category === "string" ? a.category : "") ||
+                      "General Asset"}
+                  </p>
                 </div>
                 <div className="mt-4 border-t border-border/40 pt-3 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-muted-foreground">Assignee: </span>
                     <span className="font-medium">
-                      {a.currentHolder?.firstName && a.currentHolder?.lastName ? `${a.currentHolder.firstName} ${a.currentHolder.lastName}` : "Unassigned"}
+                      {refPersonName(a.currentHolder) !== "Unknown"
+                        ? refPersonName(a.currentHolder)
+                        : "Unassigned"}
                     </span>
                   </div>
                   <div className="font-semibold text-primary">
@@ -241,33 +333,44 @@ function AssetsPage() {
               </div>
             ))}
             {filtered.length === 0 && (
-              <div className="col-span-full py-10 text-center text-muted-foreground">No assets match your filters.</div>
+              <div className="col-span-full py-10 text-center text-muted-foreground">
+                No assets match your filters.
+              </div>
             )}
           </div>
         ) : (
           /* Kanban View */
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {KANBAN_STAGES.map((stg) => {
-              const stageAssets = filtered.filter((a) => (a.status || "Available").toLowerCase() === stg.toLowerCase());
+              const stageAssets = filtered.filter(
+                (a) => (a.status || "Available").toLowerCase() === stg.toLowerCase(),
+              );
               return (
                 <div key={stg} className="neu rounded-xl p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">{stg}</span>
+                    <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                      {stg}
+                    </span>
                     <Badge tone={toneForStatus(stg)}>{stageAssets.length}</Badge>
                   </div>
                   <div className="space-y-3">
-                    {stageAssets.map((a: any) => (
+                    {stageAssets.map((a) => (
                       <div key={a._id} className="neu-inset rounded-xl p-3">
                         <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground">
                           <span>{a.serialNumber || a.assetTag}</span>
                           <span>${(a.acquisitionCost || a.value || 0).toLocaleString()}</span>
                         </div>
                         <div className="mt-1 font-semibold text-sm">{a.name}</div>
-                        <div className="mt-1 text-xs text-muted-foreground">{a.category?.name || a.category}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {refName(a.category) ||
+                            (typeof a.category === "string" ? a.category : "—")}
+                        </div>
                       </div>
                     ))}
                     {stageAssets.length === 0 && (
-                      <div className="py-6 text-center text-xs text-muted-foreground">No {stg.toLowerCase()} assets</div>
+                      <div className="py-6 text-center text-xs text-muted-foreground">
+                        No {stg.toLowerCase()} assets
+                      </div>
                     )}
                   </div>
                 </div>
