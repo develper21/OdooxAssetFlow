@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "build": "npm install --no-audit --no-fund && node --check src/server.js && echo 'Server build complete (plain Node.js, no transpilation required)'",
     "dev": "nodemon src/server.js",
     "seed:admin": "node src/seeds/adminSeeder.js",
     "seed:assets": "node src/seeds/assetSeeder.js",
