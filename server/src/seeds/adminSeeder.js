@@ -114,4 +114,8 @@ const seedAdmin = async () => {
 // ---------------------------------------------------------------------------
 // Execute the seeder
 // ---------------------------------------------------------------------------
-seedAdmin();
+if (require.main === module) {
+  seedAdmin();
+}
+
+module.exports = { seedAdmin, ADMIN_USER };
