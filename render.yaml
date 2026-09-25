@@ -1,0 +1,49 @@
+# Render Blueprint — AssetFlow Backend API
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: Render Dashboard → New → Blueprint → select this repository.
+# Render reads this file and provisions the web service automatically.
+#
+# After the first deploy:
+#   1. Set the real values for the sync:false env vars (Dashboard → Environment).
+#   2. Point the frontend's VITE_API_URL at this service's URL (see Website/netlify.toml).
+#   3. Seed the admin user once (Render Shell): npm run seed:admin
+
+services:
+  - type: web
+    name: assetflow-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: JWT_COOKIE_EXPIRE
+        value: "7"
+      - key: CLIENT_URL
+        sync: false # e.g. https://assetflow.netlify.app (comma-separated list supported)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_EMAIL
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: FROM_NAME
+        value: AssetFlow
+      - key: FROM_EMAIL
+        sync: false
