@@ -208,6 +208,28 @@ Base URL: `http://localhost:5000/api/v1`
 
 > ⚠️ **Important**: Change the default admin password immediately after first login in production.
 
+## 🚀 Deploying to Render
+
+The backend ships with a [Render Blueprint](../render.yaml) at the repository root.
+
+1. Push this repository to GitHub/GitLab.
+2. In [Render](https://dashboard.render.com) → **New → Blueprint** → select this repository.
+   Render detects `render.yaml` and creates the `assetflow-api` web service (root dir `server`).
+3. Fill in the prompted env vars:
+   - `MONGO_URI` — MongoDB Atlas connection string
+   - `CLIENT_URL` — your deployed frontend URL, e.g. `https://assetflow.netlify.app`
+     (comma-separated list supported)
+   - `SMTP_EMAIL` / `SMTP_PASSWORD` / `FROM_EMAIL` — optional, for password-reset emails
+   - `JWT_SECRET` is generated automatically.
+4. Deploy. Render uses the `/api/health` endpoint as the health check.
+5. (One-time) Seed the admin user via the Render **Shell** tab:
+   ```bash
+   npm run seed:admin
+   ```
+
+Your API will be live at `https://assetflow-api.onrender.com/api/v1` (or your custom name).
+Use that URL as the frontend's `VITE_API_URL` on Netlify — see [Website/README deployment notes](../Website#-deploying-to-netlify).
+
 ## 📄 License
 
 This project is licensed under the MIT License.
