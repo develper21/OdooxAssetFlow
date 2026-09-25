@@ -16,7 +16,9 @@ services:
     plan: free
     region: oregon
     rootDir: server
-    buildCommand: npm ci
+    # Plain Node API — no build step; just install dependencies.
+    # (npm ci would fail because server/package-lock.json is not committed.)
+    buildCommand: npm install --no-audit --no-fund
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
