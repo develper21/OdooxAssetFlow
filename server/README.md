@@ -185,7 +185,7 @@ Base URL: `http://localhost:5000/api/v1`
 | Script | Description |
 |---|---|
 | `npm start` | Start production server |
-| `npm run dev` | Start development server with nodemon |
+| `npm run dev` | Start development server with auto-restart (`node --watch`) |
 | `npm run seed:admin` | Seed default admin user |
 | `npm test` | Run tests |
 | `npm run lint` | Run ESLint |
