@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
 import { UserPlus } from "lucide-react";
-import { NeuCard, PageHeader, Badge, ViewModeSwitcher, type ViewMode } from "@/components/layout/ui";
+import {
+  NeuCard,
+  PageHeader,
+  Badge,
+  ViewModeSwitcher,
+  type ViewMode,
+} from "@/components/layout/ui";
 import { toast } from "sonner";
 import { employeesApi, departmentsApi } from "@/lib/api";
+import type { Department, FormOption, FormRecord, User } from "@/types";
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong. Please try again.";
+}
 
 function EmployeesPage() {
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<User[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -28,12 +40,12 @@ function EmployeesPage() {
     fetchData();
   }, []);
 
-  const getDepartmentName = (u: any) => {
+  const getDepartmentName = (u: User | undefined) => {
     if (!u) return "IT";
     const dept = u.department;
     if (!dept) return "IT";
     if (typeof dept === "object" && dept.name) return dept.name;
-    const found = departments.find((d: any) => d._id === dept || d.id === dept || d.code === dept || d.name === dept);
+    const found = departments.find((d) => d._id === dept || d.code === dept || d.name === dept);
     if (found) return found.name;
     if (typeof dept === "string" && dept.length < 20 && !dept.includes("66a")) return dept;
     return "IT";
@@ -51,17 +63,17 @@ function EmployeesPage() {
     e.preventDefault();
     try {
       const formData = new FormData(e.currentTarget);
-      const data: any = Object.fromEntries(formData.entries());
-      
+      const data: FormRecord = Object.fromEntries(formData.entries());
+
       await employeesApi.create(data);
       toast.success("Employee created successfully");
       setShowForm(false);
       // Refresh employees
       const employeesData = await employeesApi.getAll();
       setEmployees(employeesData.employees || []);
-    } catch (error: any) {
-      console.error('Failed to create employee:', error);
-      toast.error(error.message || "Failed to create employee");
+    } catch (error: unknown) {
+      console.error("Failed to create employee:", error);
+      toast.error(toErrorMessage(error) || "Failed to create employee");
     }
   };
 
@@ -75,7 +87,10 @@ function EmployeesPage() {
         actions={
           <>
             <ViewModeSwitcher viewMode={viewMode} onViewChange={setViewMode} />
-            <button onClick={() => setShowForm((v) => !v)} className="neu-accent inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold">
+            <button
+              onClick={() => setShowForm((v) => !v)}
+              className="neu-accent inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
+            >
               <UserPlus className="h-4 w-4" /> Invite employee
             </button>
           </>
@@ -85,10 +100,7 @@ function EmployeesPage() {
       {showForm && (
         <NeuCard>
           <h3 className="mb-4 text-lg font-semibold">Invite new employee</h3>
-          <form
-            onSubmit={handleCreateEmployee}
-            className="grid grid-cols-1 gap-4 md:grid-cols-2"
-          >
+          <form onSubmit={handleCreateEmployee} className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {[
               { l: "First name", p: "John", n: "firstName" },
               { l: "Last name", p: "Doe", n: "lastName" },
@@ -96,34 +108,55 @@ function EmployeesPage() {
               { l: "Password", p: "Password123", n: "password", type: "password" },
               { l: "Phone", p: "+1234567890", n: "phone" },
               { l: "Designation", p: "Software Engineer", n: "designation" },
-              { l: "Department", p: "Select department", n: "department", isSelect: true, options: departments },
+              {
+                l: "Department",
+                p: "Select department",
+                n: "department",
+                isSelect: true,
+                options: departments,
+              },
               { l: "Role", p: "employee", n: "role" },
             ].map((f) => (
               <label key={f.n} className="block">
-                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">{f.l}</span>
+                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                  {f.l}
+                </span>
                 {f.isSelect ? (
-                  <select 
+                  <select
                     name={f.n}
                     className="neu-inset w-full rounded-xl bg-transparent px-3 py-2.5 text-sm outline-none"
                   >
                     <option value="">Select {f.l.toLowerCase()}</option>
-                    {f.options.map((opt: any) => (
-                      <option key={opt._id} value={opt._id}>{opt.name}</option>
+                    {f.options.map((opt: FormOption) => (
+                      <option key={opt._id} value={opt._id}>
+                        {opt.name}
+                      </option>
                     ))}
                   </select>
                 ) : (
-                  <input 
+                  <input
                     name={f.n}
                     type={f.type || "text"}
-                    placeholder={f.p} 
-                    className="neu-inset w-full rounded-xl bg-transparent px-3 py-2.5 text-sm outline-none" 
+                    placeholder={f.p}
+                    className="neu-inset w-full rounded-xl bg-transparent px-3 py-2.5 text-sm outline-none"
                   />
                 )}
               </label>
             ))}
             <div className="md:col-span-2 flex justify-end gap-2">
-              <button type="button" onClick={() => setShowForm(false)} className="neu-sm rounded-xl px-4 py-2.5 text-sm">Cancel</button>
-              <button type="submit" className="neu-accent rounded-xl px-4 py-2.5 text-sm font-semibold">Invite employee</button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="neu-sm rounded-xl px-4 py-2.5 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="neu-accent rounded-xl px-4 py-2.5 text-sm font-semibold"
+              >
+                Invite employee
+              </button>
             </div>
           </form>
         </NeuCard>
@@ -144,21 +177,27 @@ function EmployeesPage() {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((u: any) => (
+                {employees.map((u) => (
                   <tr key={u._id} className="border-t border-border/50 hover:bg-muted/30">
                     <td className="py-3 pr-3">
                       <div className="flex items-center gap-3">
                         <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/20 text-xs font-semibold text-primary">
-                          {u.firstName && u.lastName ? `${u.firstName[0]}${u.lastName[0]}` : (u.name ? u.name.slice(0, 2).toUpperCase() : 'NA')}
+                          {u.firstName && u.lastName
+                            ? `${u.firstName[0]}${u.lastName[0]}`
+                            : u.name
+                              ? u.name.slice(0, 2).toUpperCase()
+                              : "NA"}
                         </div>
-                        <span className="font-medium">{u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.name}</span>
+                        <span className="font-medium">
+                          {u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.name}
+                        </span>
                       </div>
                     </td>
                     <td className="py-3 pr-3 text-muted-foreground">{u.email}</td>
-                    <td className="py-3 pr-3 font-medium text-foreground">{getDepartmentName(u)}</td>
-                    <td className="py-3 pr-3">
-                      {renderRoleBadge(u.role)}
+                    <td className="py-3 pr-3 font-medium text-foreground">
+                      {getDepartmentName(u)}
                     </td>
+                    <td className="py-3 pr-3">{renderRoleBadge(u.role)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -166,16 +205,22 @@ function EmployeesPage() {
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {employees.map((u: any) => (
+            {employees.map((u) => (
               <div key={u._id} className="neu-inset flex flex-col justify-between rounded-xl p-4">
                 <div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/20 text-xs font-semibold text-primary">
-                      {u.firstName && u.lastName ? `${u.firstName[0]}${u.lastName[0]}` : (u.name ? u.name.slice(0, 2).toUpperCase() : 'NA')}
+                      {u.firstName && u.lastName
+                        ? `${u.firstName[0]}${u.lastName[0]}`
+                        : u.name
+                          ? u.name.slice(0, 2).toUpperCase()
+                          : "NA"}
                     </div>
                     {renderRoleBadge(u.role)}
                   </div>
-                  <h4 className="mt-3 text-base font-semibold">{u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.name}</h4>
+                  <h4 className="mt-3 text-base font-semibold">
+                    {u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.name}
+                  </h4>
                   <p className="text-xs text-muted-foreground">{u.email}</p>
                 </div>
                 <div className="mt-4 border-t border-border/40 pt-3 flex items-center justify-between text-xs">
@@ -189,7 +234,9 @@ function EmployeesPage() {
           /* Kanban View by Role */
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {ROLES.map((roleKey) => {
-              const roleEmployees = employees.filter((u) => (u.role || "employee").toLowerCase() === roleKey.toLowerCase());
+              const roleEmployees = employees.filter(
+                (u) => (u.role || "employee").toLowerCase() === roleKey.toLowerCase(),
+              );
               return (
                 <div key={roleKey} className="neu rounded-xl p-4">
                   <div className="mb-3 flex items-center justify-between">
@@ -199,13 +246,19 @@ function EmployeesPage() {
                     {renderRoleBadge(roleKey)}
                   </div>
                   <div className="space-y-3">
-                    {roleEmployees.map((u: any) => (
+                    {roleEmployees.map((u) => (
                       <div key={u._id} className="neu-inset rounded-xl p-3">
                         <div className="flex items-center gap-2">
                           <div className="grid h-7 w-7 place-items-center rounded-full bg-primary/20 text-[10px] font-semibold text-primary">
-                            {u.firstName && u.lastName ? `${u.firstName[0]}${u.lastName[0]}` : (u.name ? u.name.slice(0, 2).toUpperCase() : 'NA')}
+                            {u.firstName && u.lastName
+                              ? `${u.firstName[0]}${u.lastName[0]}`
+                              : u.name
+                                ? u.name.slice(0, 2).toUpperCase()
+                                : "NA"}
                           </div>
-                          <span className="font-medium text-xs truncate">{u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.name}</span>
+                          <span className="font-medium text-xs truncate">
+                            {u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : u.name}
+                          </span>
                         </div>
                         <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
                           <span>{getDepartmentName(u)}</span>
@@ -213,7 +266,9 @@ function EmployeesPage() {
                       </div>
                     ))}
                     {roleEmployees.length === 0 && (
-                      <div className="py-6 text-center text-xs text-muted-foreground">No {roleKey.replace("_", " ")}s</div>
+                      <div className="py-6 text-center text-xs text-muted-foreground">
+                        No {roleKey.replace("_", " ")}s
+                      </div>
                     )}
                   </div>
                 </div>
