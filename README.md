@@ -298,6 +298,41 @@ This project is developed for the **Odoo Hackathon**.
 
 ---
 
+# 🌍 Deployment
+
+The project deploys as two services:
+
+| Component | Platform | Config file | Root directory |
+|---|---|---|---|
+| Backend API (Express + MongoDB) | **Render** | [`render.yaml`](render.yaml) | `server/` |
+| Frontend SPA (React + Vite) | **Netlify** | [`Website/netlify.toml`](Website/netlify.toml) | `Website/` |
+
+## 1. Backend → Render
+
+1. Push the repo to GitHub, then in [Render](https://dashboard.render.com): **New → Blueprint** → pick the repo.
+2. Fill in `MONGO_URI`, `CLIENT_URL` (your Netlify URL), and SMTP vars when prompted; `JWT_SECRET` is auto-generated.
+3. After deploy, seed the admin once from the Render Shell: `npm run seed:admin`.
+4. Note your API URL, e.g. `https://assetflow-api.onrender.com/api/v1`.
+
+Details: [`server/README.md`](server/README.md).
+
+## 2. Frontend → Netlify
+
+1. In [Netlify](https://app.netlify.com): **Add new site → Import an existing project** → pick the repo.
+2. Netlify reads `Website/netlify.toml` (base `Website`, build `npm run build`, publish `dist`, SPA redirects included).
+3. Set the env var `VITE_API_URL` to the Render API URL from step 4 above.
+4. Redeploy (or enable auto-deploy) — the site will call the backend with CORS-allowed origin.
+
+## 3. Connect the two
+
+- On Render, set `CLIENT_URL=https://<your-site>.netlify.app` (comma-separate extra origins like preview URLs).
+- On Netlify, keep `VITE_API_URL=https://assetflow-api.onrender.com/api/v1`.
+- Health check: `GET https://assetflow-api.onrender.com/api/health`.
+
+> ℹ️ Render free tier spins the API down after inactivity; the first request after idle may take ~30s.
+
+---
+
 ## ⭐ Support
 
 If you like this project, consider giving it a ⭐ on GitHub.
