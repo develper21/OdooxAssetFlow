@@ -8,7 +8,7 @@ function ResetPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  
+
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,9 +45,13 @@ function ResetPasswordPage() {
       await authApi.resetPassword(token, password);
       setResetSuccess(true);
       toast.success("Password reset successfully");
-    } catch (error: any) {
-      console.error('Reset password failed:', error);
-      toast.error(error.message || "Failed to reset password. The link may be expired.");
+    } catch (error: unknown) {
+      console.error("Reset password failed:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to reset password. The link may be expired.",
+      );
     } finally {
       setLoading(false);
     }
@@ -60,7 +64,11 @@ function ResetPasswordPage() {
           {/* Left: brand */}
           <div className="neu relative flex flex-col justify-between p-8 md:p-12">
             <div className="flex items-center gap-3">
-              <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
+              <img
+                src="/favicon.png"
+                alt="AssetFlow Logo"
+                className="h-11 w-11 rounded-xl object-contain shadow-sm"
+              />
               <div>
                 <div className="font-display text-xl font-semibold">AssetFlow</div>
                 <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -72,7 +80,8 @@ function ResetPasswordPage() {
                 Reset your password securely.
               </h1>
               <p className="max-w-md text-muted-foreground">
-                Enter your email address and we'll send you a link to reset your password and get you back into your workspace.
+                Enter your email address and we'll send you a link to reset your password and get
+                you back into your workspace.
               </p>
             </div>
 
@@ -83,7 +92,9 @@ function ResetPasswordPage() {
                 { k: "Uptime", v: "99.9%" },
               ].map((s) => (
                 <div key={s.k} className="neu-inset p-4">
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">{s.k}</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {s.k}
+                  </div>
                   <div className="mt-1 font-display text-xl font-semibold">{s.v}</div>
                 </div>
               ))}
@@ -117,7 +128,11 @@ function ResetPasswordPage() {
         {/* Left: brand */}
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center gap-3">
-            <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
+            <img
+              src="/favicon.png"
+              alt="AssetFlow Logo"
+              className="h-11 w-11 rounded-xl object-contain shadow-sm"
+            />
             <div>
               <div className="font-display text-xl font-semibold">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -151,7 +166,9 @@ function ResetPasswordPage() {
         {!resetSuccess ? (
           <div className="neu p-8 md:p-12">
             <div className="mb-8">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">Reset password</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Reset password
+              </div>
               <h2 className="mt-1 font-display text-2xl font-semibold">Create new password</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Enter your new password below. Make sure it's at least 6 characters long.
@@ -160,7 +177,9 @@ function ResetPasswordPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <label className="block">
-                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">New Password</span>
+                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                  New Password
+                </span>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -181,7 +200,9 @@ function ResetPasswordPage() {
               </label>
 
               <label className="block">
-                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Confirm New Password</span>
+                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                  Confirm New Password
+                </span>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -196,7 +217,11 @@ function ResetPasswordPage() {
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                     aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </label>
@@ -210,8 +235,8 @@ function ResetPasswordPage() {
               </button>
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => navigate("/")}
                   className="hover:text-foreground"
                 >
