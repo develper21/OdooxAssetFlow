@@ -1,7 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSession, type Role } from "@/lib/session";
-import { Moon, Sun, ShieldCheck, Boxes, LayoutDashboard, User, ChevronDown, Eye, EyeOff } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  ShieldCheck,
+  Boxes,
+  LayoutDashboard,
+  User,
+  ChevronDown,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
@@ -38,20 +48,26 @@ function LoginPage() {
     setLoading(true);
     try {
       const response = await authApi.login(email, password);
+      const dept = response.user.department;
       const userData = {
-        id: response.user._id,
-        name: `${response.user.firstName} ${response.user.lastName}`,
-        email: response.user.email,
-        role: response.user.role,
-        department: response.user.department?.name || response.user.department,
+        id: response.user._id ?? response.user.id ?? "",
+        name:
+          [response.user.firstName, response.user.lastName].filter(Boolean).join(" ") ||
+          response.user.name ||
+          "",
+        email: response.user.email ?? "",
+        role: (response.user.role ?? "employee") as Role,
+        department: (typeof dept === "object" && dept !== null ? dept.name : dept) ?? "",
         avatar: response.user.avatar,
       };
       login(userData, response.token);
       toast.success("Login successful");
       navigate(`/u/role/${userData.role}/tab/dashboard`);
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      toast.error(error.message || "Login failed. Please check your credentials.");
+    } catch (error: unknown) {
+      console.error("Login failed:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Login failed. Please check your credentials.",
+      );
     } finally {
       setLoading(false);
     }
@@ -64,7 +80,11 @@ function LoginPage() {
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
+              <img
+                src="/favicon.png"
+                alt="AssetFlow Logo"
+                className="h-11 w-11 rounded-xl object-contain shadow-sm"
+              />
               <div>
                 <div className="font-display text-xl font-semibold">AssetFlow</div>
                 <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -84,8 +104,8 @@ function LoginPage() {
               One workspace for every asset, booking, and audit.
             </h1>
             <p className="max-w-md text-muted-foreground">
-              Register hardware, allocate to teams, book shared resources, track
-              maintenance, and close audit cycles — from a single, calm interface.
+              Register hardware, allocate to teams, book shared resources, track maintenance, and
+              close audit cycles — from a single, calm interface.
             </p>
           </div>
 
@@ -108,14 +128,14 @@ function LoginPage() {
           <div className="mb-8">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Sign in</div>
             <h2 className="mt-1 font-display text-2xl font-semibold">Welcome back</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter your credentials to sign in.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Enter your credentials to sign in.</p>
           </div>
 
           <form onSubmit={submit} className="space-y-4">
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Role</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Role
+              </span>
               <div className="relative">
                 <select
                   value={selectedRole}
@@ -123,7 +143,11 @@ function LoginPage() {
                   className="neu-inset w-full appearance-none rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none cursor-pointer text-foreground"
                 >
                   {ROLES.map((r) => (
-                    <option key={r.role} value={r.role} className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium">
+                    <option
+                      key={r.role}
+                      value={r.role}
+                      className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium"
+                    >
                       {r.label}
                     </option>
                   ))}
@@ -132,7 +156,9 @@ function LoginPage() {
               </div>
             </label>
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Email</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Email
+              </span>
               <input
                 type="email"
                 value={email}
@@ -142,7 +168,9 @@ function LoginPage() {
               />
             </label>
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Password</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Password
+              </span>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -171,15 +199,15 @@ function LoginPage() {
             </button>
 
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => navigate("/forgot-password")}
                 className="hover:text-foreground"
               >
                 Forgot password?
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => navigate("/signup")}
                 className="hover:text-foreground"
               >
