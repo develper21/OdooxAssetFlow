@@ -34,12 +34,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      const token = localStorage.getItem('assetflow_token');
-      if (raw) setUser(JSON.parse(raw));
+      const token = localStorage.getItem("assetflow_token");
+      if (raw) setUser(JSON.parse(raw) as SessionUser);
       if (token) api.setToken(token);
       const t = (localStorage.getItem(THEME_KEY) as "light" | "dark" | null) ?? "dark";
       setTheme(t);
-    } catch {}
+    } catch {
+      // Ignore corrupted session storage and fall back to defaults.
+    }
     setHydrated(true);
   }, []);
 
@@ -54,12 +56,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setUser(u);
     if (token) {
       api.setToken(token);
-      localStorage.setItem('assetflow_token', token);
+      localStorage.setItem("assetflow_token", token);
     }
   };
   const logout = () => {
     localStorage.removeItem(KEY);
-    localStorage.removeItem('assetflow_token');
+    localStorage.removeItem("assetflow_token");
     api.clearToken();
     setUser(null);
   };
