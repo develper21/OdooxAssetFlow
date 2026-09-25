@@ -1,9 +1,23 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
-  LayoutDashboard, Boxes, Users, Building2, Tag, CalendarCheck, Wrench,
-  ArrowLeftRight, BarChart3, Bell, LogOut, Moon, Sun,
-  Menu, Search, ChevronRight, ShieldCheck,
+  LayoutDashboard,
+  Boxes,
+  Users,
+  Building2,
+  Tag,
+  CalendarCheck,
+  Wrench,
+  ArrowLeftRight,
+  BarChart3,
+  Bell,
+  LogOut,
+  Moon,
+  Sun,
+  Menu,
+  Search,
+  ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import { useSession, type Role } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -21,17 +35,52 @@ const generateRoleUrl = (role: string, tab: string): string => {
 };
 
 const NAV: NavItem[] = [
-  { tab: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { tab: "assets", label: "Asset Registry", icon: Boxes, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { tab: "allocations", label: "Allocations", icon: ArrowLeftRight, roles: ["admin", "asset_manager", "department_head"] },
-  { tab: "bookings", label: "Bookings", icon: CalendarCheck, roles: ["admin", "asset_manager", "department_head", "employee"] },
-  { tab: "maintenance", label: "Maintenance", icon: Wrench, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  {
+    tab: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: ["admin", "asset_manager", "department_head", "employee"],
+  },
+  {
+    tab: "assets",
+    label: "Asset Registry",
+    icon: Boxes,
+    roles: ["admin", "asset_manager", "department_head", "employee"],
+  },
+  {
+    tab: "allocations",
+    label: "Allocations",
+    icon: ArrowLeftRight,
+    roles: ["admin", "asset_manager", "department_head"],
+  },
+  {
+    tab: "bookings",
+    label: "Bookings",
+    icon: CalendarCheck,
+    roles: ["admin", "asset_manager", "department_head", "employee"],
+  },
+  {
+    tab: "maintenance",
+    label: "Maintenance",
+    icon: Wrench,
+    roles: ["admin", "asset_manager", "department_head", "employee"],
+  },
   { tab: "audits", label: "Audits", icon: ShieldCheck, roles: ["admin", "asset_manager"] },
   { tab: "departments", label: "Departments", icon: Building2, roles: ["admin"] },
   { tab: "categories", label: "Categories", icon: Tag, roles: ["admin", "asset_manager"] },
   { tab: "employees", label: "Employees", icon: Users, roles: ["admin"] },
-  { tab: "reports", label: "Reports", icon: BarChart3, roles: ["admin", "asset_manager", "department_head"] },
-  { tab: "notifications", label: "Notifications", icon: Bell, roles: ["admin", "asset_manager", "department_head", "employee"] },
+  {
+    tab: "reports",
+    label: "Reports",
+    icon: BarChart3,
+    roles: ["admin", "asset_manager", "department_head"],
+  },
+  {
+    tab: "notifications",
+    label: "Notifications",
+    icon: Bell,
+    roles: ["admin", "asset_manager", "department_head", "employee"],
+  },
 ];
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -51,10 +100,7 @@ export function AppLayout() {
     if (hydrated && !user) navigate("/");
   }, [hydrated, user, navigate]);
 
-  const items = useMemo(
-    () => (user ? NAV.filter((n) => n.roles.includes(user.role)) : []),
-    [user],
-  );
+  const items = useMemo(() => (user ? NAV.filter((n) => n.roles.includes(user.role)) : []), [user]);
 
   const unread = 0;
   const crumb = loc.pathname.split("/").filter(Boolean).slice(-1)[0] ?? "dashboard";
@@ -73,7 +119,11 @@ export function AppLayout() {
           )}
         >
           <div className="mb-6 flex items-center gap-3">
-            <img src="/favicon.png" alt="AssetFlow Logo" className="h-10 w-10 rounded-xl object-contain shadow-sm" />
+            <img
+              src="/favicon.png"
+              alt="AssetFlow Logo"
+              className="h-10 w-10 rounded-xl object-contain shadow-sm"
+            />
             <div>
               <div className="font-display text-lg font-semibold leading-tight">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -82,7 +132,11 @@ export function AppLayout() {
 
           <div className="neu-inset mb-6 flex items-center gap-3 p-3">
             <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/20 font-semibold text-primary">
-              {user.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
+              {user.name
+                .split(" ")
+                .map((s) => s[0])
+                .slice(0, 2)
+                .join("")}
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold">{user.name}</div>
@@ -161,7 +215,10 @@ export function AppLayout() {
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-            <Link to={generateRoleUrl(user.role, "notifications")} className="neu-sm relative grid h-10 w-10 place-items-center">
+            <Link
+              to={generateRoleUrl(user.role, "notifications")}
+              className="neu-sm relative grid h-10 w-10 place-items-center"
+            >
               <Bell className="h-4 w-4" />
               {unread > 0 && (
                 <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
