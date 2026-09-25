@@ -4,6 +4,11 @@ import { CheckCircle } from "lucide-react";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong. Please try again.";
+}
+
 function ForgotPasswordPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -23,9 +28,9 @@ function ForgotPasswordPage() {
       await authApi.forgotPassword(email);
       setEmailSent(true);
       toast.success("Password reset email sent successfully");
-    } catch (error: any) {
-      console.error('Forgot password failed:', error);
-      toast.error(error.message || "Failed to send reset email. Please try again.");
+    } catch (error: unknown) {
+      console.error("Forgot password failed:", error);
+      toast.error(toErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -37,7 +42,11 @@ function ForgotPasswordPage() {
         {/* Left: brand */}
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center gap-3">
-            <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
+            <img
+              src="/favicon.png"
+              alt="AssetFlow Logo"
+              className="h-11 w-11 rounded-xl object-contain shadow-sm"
+            />
             <div>
               <div className="font-display text-xl font-semibold">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -49,7 +58,8 @@ function ForgotPasswordPage() {
               Reset your password securely.
             </h1>
             <p className="max-w-md text-muted-foreground">
-              Enter your email address and we'll send you a link to reset your password and get you back into your workspace.
+              Enter your email address and we'll send you a link to reset your password and get you
+              back into your workspace.
             </p>
           </div>
 
@@ -72,7 +82,9 @@ function ForgotPasswordPage() {
           {!emailSent ? (
             <>
               <div className="mb-8">
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Forgot password</div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Forgot password
+                </div>
                 <h2 className="mt-1 font-display text-2xl font-semibold">Reset your password</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Enter your email address and we'll send you a link to reset your password.
@@ -81,7 +93,9 @@ function ForgotPasswordPage() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
-                  <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Email Address</span>
+                  <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                    Email Address
+                  </span>
                   <input
                     type="email"
                     value={email}
@@ -100,8 +114,8 @@ function ForgotPasswordPage() {
                 </button>
 
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => navigate("/")}
                     className="hover:text-foreground"
                   >
@@ -117,8 +131,8 @@ function ForgotPasswordPage() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Check your email</h3>
               <p className="mb-6 text-sm text-muted-foreground">
-                We've sent a password reset link to <strong>{email}</strong>. 
-                Please check your inbox and follow the instructions.
+                We've sent a password reset link to <strong>{email}</strong>. Please check your
+                inbox and follow the instructions.
               </p>
               <button
                 onClick={() => navigate("/")}
@@ -131,7 +145,6 @@ function ForgotPasswordPage() {
                 <button
                   onClick={() => {
                     setEmailSent(false);
-                    handleSubmit(new Event('submit') as any);
                   }}
                   className="hover:text-foreground font-medium"
                 >
