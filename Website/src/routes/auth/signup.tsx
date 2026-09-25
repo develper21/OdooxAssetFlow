@@ -3,7 +3,12 @@ import { useState, useEffect } from "react";
 import { User, ArrowLeft, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { authApi, departmentsApi } from "@/lib/api";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import type { Department, FormRecord } from "@/types";
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong. Please try again.";
+}
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -19,7 +24,7 @@ function SignupPage() {
     department: "",
     role: "employee" as const,
   });
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingDepartments, setLoadingDepartments] = useState(true);
 
   useEffect(() => {
@@ -28,7 +33,7 @@ function SignupPage() {
         const data = await departmentsApi.getAll();
         setDepartments(data.departments || []);
       } catch (error) {
-        console.error('Failed to fetch departments:', error);
+        console.error("Failed to fetch departments:", error);
       } finally {
         setLoadingDepartments(false);
       }
@@ -67,9 +72,9 @@ function SignupPage() {
       });
       toast.success("Registration successful! Please sign in.");
       navigate("/");
-    } catch (error: any) {
-      console.error('Signup failed:', error);
-      toast.error(error.message || "Registration failed. Please try again.");
+    } catch (error: unknown) {
+      console.error("Signup failed:", error);
+      toast.error(toErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -81,7 +86,11 @@ function SignupPage() {
         {/* Left: brand */}
         <div className="neu relative flex flex-col justify-between p-8 md:p-12">
           <div className="flex items-center gap-3">
-            <img src="/favicon.png" alt="AssetFlow Logo" className="h-11 w-11 rounded-xl object-contain shadow-sm" />
+            <img
+              src="/favicon.png"
+              alt="AssetFlow Logo"
+              className="h-11 w-11 rounded-xl object-contain shadow-sm"
+            />
             <div>
               <div className="font-display text-xl font-semibold">AssetFlow</div>
               <div className="text-xs text-muted-foreground">Resource OS</div>
@@ -93,7 +102,8 @@ function SignupPage() {
               Join your team's asset management workspace.
             </h1>
             <p className="max-w-md text-muted-foreground">
-              Create your account to start managing assets, bookings, and audits with your organization.
+              Create your account to start managing assets, bookings, and audits with your
+              organization.
             </p>
           </div>
 
@@ -124,7 +134,9 @@ function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <label className="block">
-                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">First Name</span>
+                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                  First Name
+                </span>
                 <input
                   type="text"
                   value={formData.firstName}
@@ -134,7 +146,9 @@ function SignupPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Last Name</span>
+                <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                  Last Name
+                </span>
                 <input
                   type="text"
                   value={formData.lastName}
@@ -146,7 +160,9 @@ function SignupPage() {
             </div>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Email</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Email
+              </span>
               <input
                 type="email"
                 value={formData.email}
@@ -157,7 +173,9 @@ function SignupPage() {
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Department</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Department
+              </span>
               <div className="relative">
                 <select
                   value={formData.department}
@@ -165,9 +183,20 @@ function SignupPage() {
                   disabled={loadingDepartments}
                   className="neu-inset w-full appearance-none rounded-xl bg-transparent pl-4 pr-10 py-3 text-sm outline-none cursor-pointer text-foreground"
                 >
-                  <option value="" className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium">Select department</option>
-                  {departments.map((dept: any) => (
-                    <option key={dept._id} value={dept._id} className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium">{dept.name}</option>
+                  <option
+                    value=""
+                    className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium"
+                  >
+                    Select department
+                  </option>
+                  {departments.map((dept) => (
+                    <option
+                      key={dept._id}
+                      value={dept._id}
+                      className="bg-white text-black dark:bg-zinc-800 dark:text-white font-medium"
+                    >
+                      {dept.name}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -175,7 +204,9 @@ function SignupPage() {
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Password</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Password
+              </span>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -196,7 +227,9 @@ function SignupPage() {
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">Confirm Password</span>
+              <span className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
+                Confirm Password
+              </span>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
@@ -211,7 +244,11 @@ function SignupPage() {
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                   aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                 >
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </label>
@@ -225,11 +262,7 @@ function SignupPage() {
             </button>
 
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <button 
-                type="button" 
-                onClick={() => navigate("/")}
-                className="hover:text-foreground"
-              >
+              <button type="button" onClick={() => navigate("/")} className="hover:text-foreground">
                 Already have an account? Sign in
               </button>
             </div>
