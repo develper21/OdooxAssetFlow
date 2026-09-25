@@ -2,8 +2,14 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 export function PageHeader({
-  title, subtitle, actions,
-}: { title: string; subtitle?: string; actions?: ReactNode }) {
+  title,
+  subtitle,
+  actions,
+}: {
+  title: string;
+  subtitle?: string;
+  actions?: ReactNode;
+}) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
@@ -15,17 +21,22 @@ export function PageHeader({
   );
 }
 
-export function NeuCard({
-  className, children,
-}: { className?: string; children: ReactNode }) {
+export function NeuCard({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn("neu p-5 md:p-6", className)}>{children}</div>;
 }
 
 export function StatCard({
-  label, value, delta, tone = "default", icon,
+  label,
+  value,
+  delta,
+  tone = "default",
+  icon,
 }: {
-  label: string; value: string; delta?: string;
-  tone?: "default" | "accent"; icon?: ReactNode;
+  label: string;
+  value: string;
+  delta?: string;
+  tone?: "default" | "accent";
+  icon?: ReactNode;
 }) {
   return (
     <div className={cn("p-5 md:p-6", tone === "accent" ? "neu-accent" : "neu")}>
@@ -40,8 +51,12 @@ export function StatCard({
 }
 
 export function Badge({
-  children, tone = "neutral",
-}: { children: ReactNode; tone?: "neutral" | "success" | "warn" | "danger" | "primary" }) {
+  children,
+  tone = "neutral",
+}: {
+  children: ReactNode;
+  tone?: "neutral" | "success" | "warn" | "danger" | "primary";
+}) {
   const tones: Record<string, string> = {
     neutral: "bg-muted text-muted-foreground",
     success: "bg-emerald-500/15 text-emerald-500",
@@ -50,16 +65,36 @@ export function Badge({
     primary: "bg-primary/20 text-primary",
   };
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium", tones[tone])}>
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+        tones[tone],
+      )}
+    >
       {children}
     </span>
   );
 }
 
-export function toneForStatus(status: string): "neutral" | "success" | "warn" | "danger" | "primary" {
+export function toneForStatus(
+  status: string | null | undefined,
+): "neutral" | "success" | "warn" | "danger" | "primary" {
   if (!status) return "neutral";
   const s = status.toLowerCase();
-  if (["available", "resolved", "confirmed", "completed", "approved", "returned", "active", "done", "paid"].includes(s)) return "success";
+  if (
+    [
+      "available",
+      "resolved",
+      "confirmed",
+      "completed",
+      "approved",
+      "returned",
+      "active",
+      "done",
+      "paid",
+    ].includes(s)
+  )
+    return "success";
   if (["pending", "planned", "in progress", "assigned", "running"].includes(s)) return "warn";
   if (["retired", "cancelled", "returned late", "failed"].includes(s)) return "danger";
   if (["allocated", "maintenance"].includes(s)) return "primary";
@@ -67,7 +102,9 @@ export function toneForStatus(status: string): "neutral" | "success" | "warn" | 
 }
 
 export function DataTable<T>({
-  columns, rows, empty = "No records",
+  columns,
+  rows,
+  empty = "No records",
 }: {
   columns: { key: string; label: string; render?: (row: T) => ReactNode; className?: string }[];
   rows: T[];
@@ -79,7 +116,9 @@ export function DataTable<T>({
         <thead>
           <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
             {columns.map((c) => (
-              <th key={c.key} className={cn("px-3 py-3 font-medium", c.className)}>{c.label}</th>
+              <th key={c.key} className={cn("px-3 py-3 font-medium", c.className)}>
+                {c.label}
+              </th>
             ))}
           </tr>
         </thead>
@@ -126,7 +165,9 @@ export function ViewModeSwitcher({
         onClick={() => onViewChange("list")}
         className={cn(
           "px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5",
-          viewMode === "list" ? "neu-accent text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+          viewMode === "list"
+            ? "neu-accent text-primary-foreground font-semibold"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         <span>List</span>
@@ -136,7 +177,9 @@ export function ViewModeSwitcher({
         onClick={() => onViewChange("grid")}
         className={cn(
           "px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5",
-          viewMode === "grid" ? "neu-accent text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+          viewMode === "grid"
+            ? "neu-accent text-primary-foreground font-semibold"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         <span>Grid</span>
@@ -146,7 +189,9 @@ export function ViewModeSwitcher({
         onClick={() => onViewChange("kanban")}
         className={cn(
           "px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5",
-          viewMode === "kanban" ? "neu-accent text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+          viewMode === "kanban"
+            ? "neu-accent text-primary-foreground font-semibold"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         <span>Kanban</span>
@@ -154,4 +199,3 @@ export function ViewModeSwitcher({
     </div>
   );
 }
-
