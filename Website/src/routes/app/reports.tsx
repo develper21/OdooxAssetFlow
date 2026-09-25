@@ -1,13 +1,33 @@
 import { useEffect, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Line,
+  LineChart,
+} from "recharts";
 import { Download } from "lucide-react";
 import { NeuCard, PageHeader, StatCard } from "@/components/layout/ui";
-import { reportsApi, departmentsApi } from "@/lib/api";
+import { reportsApi, departmentsApi, type ReportRow } from "@/lib/api";
+import type { Department } from "@/types";
+
+interface UtilPoint {
+  d: string;
+  v: number;
+}
+interface MaintPoint {
+  m: string;
+  w: number;
+}
 
 function ReportsPage() {
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [utilizationData, setUtilizationData] = useState<any[]>([]);
-  const [maintenanceData, setMaintenanceData] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [utilizationData, setUtilizationData] = useState<UtilPoint[]>([]);
+  const [maintenanceData, setMaintenanceData] = useState<MaintPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,22 +39,29 @@ function ReportsPage() {
           reportsApi.getMaintenanceFrequency(),
         ]);
         setDepartments(deptData.departments || []);
-        
+
         // Transform utilization data for chart
-        const transformedUtil = Array.isArray(utilData) ? utilData.map((item: any) => ({
-          d: `${item._id.month}/${item._id.year}`,
-          v: item.totalAllocations
-        })) : [];
+        const transformedUtil = Array.isArray(utilData)
+          ? utilData.map((item: ReportRow) => {
+              const id = item._id as { month?: number; year?: number } | undefined;
+              return {
+                d: `${id?.month ?? ""}/${id?.year ?? ""}`,
+                v: Number(item.totalAllocations ?? 0),
+              };
+            })
+          : [];
         setUtilizationData(transformedUtil);
-        
+
         // Transform maintenance data for chart
-        const transformedMaint = Array.isArray(maintData) ? maintData.map((item: any) => ({
-          m: item.name || item.assetTag,
-          w: item.maintenanceCount
-        })) : [];
+        const transformedMaint = Array.isArray(maintData)
+          ? maintData.map((item: ReportRow) => ({
+              m: String(item.name ?? item.assetTag ?? ""),
+              w: Number(item.maintenanceCount ?? 0),
+            }))
+          : [];
         setMaintenanceData(transformedMaint);
       } catch (error) {
-        console.error('Failed to fetch reports data:', error);
+        console.error("Failed to fetch reports data:", error);
         setDepartments([]);
       } finally {
         setLoading(false);
@@ -45,23 +72,29 @@ function ReportsPage() {
   }, []);
 
   // Fallback chart data if API returns empty
-  const chartUtilizationData = utilizationData.length > 0 ? utilizationData : [
-    { d: '1/2026', v: 82 },
-    { d: '2/2026', v: 85 },
-    { d: '3/2026', v: 88 },
-    { d: '4/2026', v: 87 },
-    { d: '5/2026', v: 90 },
-    { d: '6/2026', v: 89 },
-  ];
+  const chartUtilizationData =
+    utilizationData.length > 0
+      ? utilizationData
+      : [
+          { d: "1/2026", v: 82 },
+          { d: "2/2026", v: 85 },
+          { d: "3/2026", v: 88 },
+          { d: "4/2026", v: 87 },
+          { d: "5/2026", v: 90 },
+          { d: "6/2026", v: 89 },
+        ];
 
-  const chartMaintenanceData = maintenanceData.length > 0 ? maintenanceData : [
-    { m: 'Laptop-001', w: 12 },
-    { m: 'Monitor-002', w: 15 },
-    { m: 'Printer-003', w: 18 },
-    { m: 'Projector-004', w: 14 },
-    { m: 'Server-005', w: 20 },
-    { m: 'Router-006', w: 16 },
-  ];
+  const chartMaintenanceData =
+    maintenanceData.length > 0
+      ? maintenanceData
+      : [
+          { m: "Laptop-001", w: 12 },
+          { m: "Monitor-002", w: 15 },
+          { m: "Printer-003", w: 18 },
+          { m: "Projector-004", w: 14 },
+          { m: "Server-005", w: 20 },
+          { m: "Router-006", w: 16 },
+        ];
 
   return (
     <div className="space-y-6">
@@ -89,10 +122,27 @@ function ReportsPage() {
             <ResponsiveContainer>
               <LineChart data={chartUtilizationData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="d" stroke="var(--muted-foreground)" tickLine={false} axisLine={false} />
+                <XAxis
+                  dataKey="d"
+                  stroke="var(--muted-foreground)"
+                  tickLine={false}
+                  axisLine={false}
+                />
                 <YAxis stroke="var(--muted-foreground)" tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12 }} />
-                <Line type="monotone" dataKey="v" stroke="var(--color-chart-1)" strokeWidth={3} dot={false} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--popover)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 12,
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="v"
+                  stroke="var(--color-chart-1)"
+                  strokeWidth={3}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -103,9 +153,20 @@ function ReportsPage() {
             <ResponsiveContainer>
               <BarChart data={chartMaintenanceData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="m" stroke="var(--muted-foreground)" tickLine={false} axisLine={false} />
+                <XAxis
+                  dataKey="m"
+                  stroke="var(--muted-foreground)"
+                  tickLine={false}
+                  axisLine={false}
+                />
                 <YAxis stroke="var(--muted-foreground)" tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--popover)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 12,
+                  }}
+                />
                 <Bar dataKey="w" fill="var(--color-chart-1)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -128,20 +189,35 @@ function ReportsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="py-10 text-center text-muted-foreground">Loading...</td></tr>
-              ) : departments.map((d: any) => {
-                const employeeCount = d.employeeCount || d.employees || 0;
-                const assetCount = d.assetCount || d.assets || 0;
-                return (
-                  <tr key={d._id} className="border-t border-border/50">
-                    <td className="py-3 pr-3 font-medium">{d.name}</td>
-                    <td className="py-3 pr-3 text-muted-foreground">{d.headOfDepartment?.firstName && d.headOfDepartment?.lastName ? `${d.headOfDepartment.firstName} ${d.headOfDepartment.lastName}` : d.head}</td>
-                    <td className="py-3 pr-3">{employeeCount}</td>
-                    <td className="py-3 pr-3">{assetCount}</td>
-                    <td className="py-3 pr-3">{employeeCount > 0 ? (assetCount / employeeCount).toFixed(1) : '0.0'}</td>
-                  </tr>
-                );
-              })}
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-muted-foreground">
+                    Loading...
+                  </td>
+                </tr>
+              ) : (
+                departments.map((d) => {
+                  const employeeCount = d.employeeCount || d.employees?.length || 0;
+                  const assetCount =
+                    d.assetCount || (Array.isArray(d.assets) ? d.assets.length : 0);
+                  const head =
+                    d.headOfDepartment && typeof d.headOfDepartment === "object"
+                      ? [d.headOfDepartment.firstName, d.headOfDepartment.lastName]
+                          .filter(Boolean)
+                          .join(" ")
+                      : (d.headOfDepartment as string | null) || d.head || "—";
+                  return (
+                    <tr key={d._id} className="border-t border-border/50">
+                      <td className="py-3 pr-3 font-medium">{d.name}</td>
+                      <td className="py-3 pr-3 text-muted-foreground">{head}</td>
+                      <td className="py-3 pr-3">{employeeCount}</td>
+                      <td className="py-3 pr-3">{assetCount}</td>
+                      <td className="py-3 pr-3">
+                        {employeeCount > 0 ? (assetCount / employeeCount).toFixed(1) : "0.0"}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
