@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
-import { Bell, BellOff, Boxes, CalendarCheck, ArrowLeftRight, Wrench, ShieldCheck } from "lucide-react";
+import {
+  Bell,
+  BellOff,
+  Boxes,
+  CalendarCheck,
+  ArrowLeftRight,
+  Wrench,
+  ShieldCheck,
+} from "lucide-react";
 import { NeuCard, PageHeader, Badge } from "@/components/layout/ui";
 import { notificationsApi } from "@/lib/api";
+import type { AppNotification } from "@/types";
 
 const ICONS = {
-  asset: Boxes, booking: CalendarCheck, transfer: ArrowLeftRight,
-  maintenance: Wrench, audit: ShieldCheck,
+  asset: Boxes,
+  booking: CalendarCheck,
+  transfer: ArrowLeftRight,
+  maintenance: Wrench,
+  audit: ShieldCheck,
 } as const;
 
 function NotificationsPage() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +30,7 @@ function NotificationsPage() {
         const data = await notificationsApi.getAll();
         setNotifications(data.notifications || []);
       } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+        console.error("Failed to fetch notifications:", error);
         setNotifications([]);
       } finally {
         setLoading(false);
@@ -52,13 +64,14 @@ function NotificationsPage() {
           </div>
           <h3 className="text-lg font-semibold text-foreground">No notifications yet</h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            You're all caught up! System updates regarding asset transfers, maintenance requests, and audit logs will appear here.
+            You're all caught up! System updates regarding asset transfers, maintenance requests,
+            and audit logs will appear here.
           </p>
         </div>
       ) : (
         <NeuCard>
           <ul className="space-y-2">
-            {notifications.map((n: any) => {
+            {notifications.map((n) => {
               const Icon = ICONS[n.type as keyof typeof ICONS] || Boxes;
               return (
                 <li key={n._id} className="neu-inset flex items-start gap-3 p-4">
@@ -72,7 +85,9 @@ function NotificationsPage() {
                     </div>
                     <p className="mt-0.5 text-sm text-muted-foreground">{n.message}</p>
                   </div>
-                  <span className="whitespace-nowrap text-xs text-muted-foreground">{new Date(n.createdAt).toLocaleDateString()}</span>
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">
+                    {n.createdAt ? new Date(n.createdAt).toLocaleDateString() : ""}
+                  </span>
                 </li>
               );
             })}
