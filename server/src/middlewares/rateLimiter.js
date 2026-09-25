@@ -22,7 +22,7 @@ const apiLimiter = rateLimit({
     success: false,
     message: 'Too many requests from this IP. Please try again after 15 minutes.',
   },
-  statusCode: HTTP_STATUS.BAD_REQUEST, // 429 is more accurate but 400 keeps it simple
+  statusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
 });
 
 /**
@@ -38,7 +38,7 @@ const authLimiter = rateLimit({
     success: false,
     message: 'Too many authentication attempts. Please try again after 15 minutes.',
   },
-  statusCode: HTTP_STATUS.BAD_REQUEST,
+  statusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
   skip: (req) => {
     // Skip rate limiting in development
     return process.env.NODE_ENV === 'development';
