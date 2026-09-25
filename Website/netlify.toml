@@ -2,8 +2,12 @@
 # Docs: https://docs.netlify.com/configure-builds/file-based-configuration/
 #
 # Deploy: Netlify Dashboard → Add new site → Import an existing project.
-# Set the VITE_API_URL environment variable (below or in the dashboard) to the
-# Render backend URL, e.g. https://assetflow-api.onrender.com/api/v1
+#
+# IMPORTANT: set VITE_API_URL in the Netlify UI only
+# (Site configuration → Environment variables), pointing at your Render
+# backend service, e.g. https://<your-render-service>.onrender.com/api/v1
+# Do NOT hardcode the real URL in this file — Netlify's secrets scanner
+# fails the build when a secret env var's value appears in repo files.
 
 [build]
   base = "Website"
@@ -12,8 +16,11 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Point this at your Render service URL after the first backend deploy:
-  VITE_API_URL = "https://assetflow-api.onrender.com/api/v1"
+  # VITE_* variables are compiled into the public JS bundle, so they are not
+  # secrets. Omitting VITE_API_URL from secrets scanning prevents false
+  # positives (e.g. the same URL appearing in .env.example) from failing
+  # the build.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_API_URL"
 
 # SPA fallback — send every route to index.html so client-side routing works
 [[redirects]]
