@@ -119,7 +119,7 @@ class TransferService {
     }
 
     // 2. Create new Allocation for the target user
-    const newAllocation = await Allocation.create({
+    await Allocation.create({
       asset: request.asset,
       allocateToType: 'User',
       allocatedTo: request.toUser,
