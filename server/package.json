@@ -33,5 +33,22 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "build": "npm install --no-audit --no-fund && node --check src/server.js && echo 'Server build complete (plain Node.js, no transpilation required)'",
+    "dev": "node --watch src/server.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .js"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.4.0",
+    "eslint": "^8.50.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": ["src/**/*.js"]
   }
 }
