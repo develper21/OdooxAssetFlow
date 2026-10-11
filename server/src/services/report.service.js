@@ -2,8 +2,6 @@ const Asset = require('../models/Asset');
 const Allocation = require('../models/Allocation');
 const Booking = require('../models/Booking');
 const MaintenanceRequest = require('../models/MaintenanceRequest');
-const Department = require('../models/Department');
-const AssetCategory = require('../models/AssetCategory');
 const mongoose = require('mongoose');
 
 /**
@@ -155,7 +153,7 @@ class ReportService {
   /**
    * @desc Assets nearing retirement based on category usefulLifeYears
    */
-  static async getRetirementForecast(filters = {}) {
+  static async getRetirementForecast(_filters = {}) {
     // We aggregate assets and look up their category depreciation/life spans
     return await Asset.aggregate([
       {
@@ -203,7 +201,7 @@ class ReportService {
   /**
    * @desc Department-wise asset value and allocation count summary
    */
-  static async getDepartmentSummary(filters = {}) {
+  static async getDepartmentSummary(_filters = {}) {
     return await Asset.aggregate([
       { $match: { department: { $ne: null } } },
       {
@@ -238,7 +236,7 @@ class ReportService {
   /**
    * @desc Resource booking heatmap / peak usage windows
    */
-  static async getBookingHeatmap(filters = {}) {
+  static async getBookingHeatmap(_filters = {}) {
     return await Booking.aggregate([
       { $match: { status: { $ne: 'cancelled' } } },
       {
