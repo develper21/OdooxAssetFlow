@@ -119,7 +119,7 @@ class MaintenanceService {
         );
         break;
 
-      case 'technician_assigned':
+      case 'technician_assigned': {
         if (!['approved', 'technician_assigned'].includes(currentStatus)) {
           throw new AppError('Request must be approved before assigning a technician', HTTP_STATUS.BAD_REQUEST);
         }
@@ -155,8 +155,9 @@ class MaintenanceService {
           request._id
         );
         break;
+      }
 
-      case 'in_progress':
+      case 'in_progress': {
         if (currentStatus !== 'technician_assigned') {
           throw new AppError('Technician must be assigned before starting repair work', HTTP_STATUS.BAD_REQUEST);
         }
@@ -168,8 +169,9 @@ class MaintenanceService {
 
         request.status = 'in_progress';
         break;
+      }
 
-      case 'resolved':
+      case 'resolved': {
         if (currentStatus !== 'in_progress') {
           throw new AppError('Repair work must be in progress to resolve request', HTTP_STATUS.BAD_REQUEST);
         }
@@ -196,6 +198,7 @@ class MaintenanceService {
           request._id
         );
         break;
+      }
 
       default:
         throw new AppError('Invalid maintenance status transition target', HTTP_STATUS.BAD_REQUEST);
