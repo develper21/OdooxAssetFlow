@@ -1,1 +1,1 @@
-import '@testing-library/jest-dom';
+// Setup for Vitest. No DOM matchers installed to avoid extra peer deps.
