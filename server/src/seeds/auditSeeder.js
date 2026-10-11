@@ -14,7 +14,6 @@ const mongoose = require('mongoose');
 const connectDB = require('../config/db');
 const User = require('../models/User');
 const AuditCycle = require('../models/AuditCycle');
-const AuditItem = require('../models/AuditItem');
 const AuditService = require('../services/audit.service');
 
 const seedAudits = async () => {
