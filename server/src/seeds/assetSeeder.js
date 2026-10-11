@@ -181,7 +181,7 @@ const seedAssets = async () => {
       const expectedReturn = new Date();
       expectedReturn.setDate(expectedReturn.getDate() + 90); // 90 days allocation
 
-      const allocation = await Allocation.create({
+      await Allocation.create({
         asset: checkOutAsset._id,
         allocateToType: 'User',
         allocatedTo: employeeUser._id,
