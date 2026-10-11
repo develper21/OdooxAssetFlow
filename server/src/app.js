@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
-const { authLimiter } = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const routes = require('./routes');
 const AppError = require('./utils/errors/AppError');
