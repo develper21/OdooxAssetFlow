@@ -80,12 +80,12 @@ class EmployeeService {
    * @desc Update employee profile information
    * @param {string} id - User MongoDB ObjectId
    * @param {Object} data - Fields to update
-   * @param {string} adminId - ID of the admin performing the update
+   * @param {string} _adminId - ID of the admin performing the update
    * @returns {Object} Updated employee (password excluded)
    * @throws {AppError} If employee not found
    * @note Does NOT allow role or password updates — use promote() for role changes
    */
-  static async update(id, data, adminId) {
+  static async update(id, data, _adminId) {
     // Prevent role updates through this method — use promote() instead
     if (data.role) {
       delete data.role;
@@ -114,11 +114,11 @@ class EmployeeService {
    * @desc Promote or change an employee's role
    * @param {string} id - User MongoDB ObjectId
    * @param {string} newRole - The new role to assign
-   * @param {string} adminId - ID of the admin performing the promotion
+   * @param {string} _adminId - ID of the admin performing the promotion
    * @returns {Object} Updated employee with new role
    * @throws {AppError} If employee not found or invalid role
    */
-  static async promote(id, newRole, adminId) {
+  static async promote(id, newRole, _adminId) {
     // Validate that the role is one of the allowed roles
     const validRoles = ['admin', 'asset_manager', 'department_head', 'employee'];
     if (!validRoles.includes(newRole)) {
