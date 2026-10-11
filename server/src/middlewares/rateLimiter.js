@@ -39,7 +39,7 @@ const authLimiter = rateLimit({
     message: 'Too many authentication attempts. Please try again after 15 minutes.',
   },
   statusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
-  skip: (req) => {
+  skip: () => {
     // Skip rate limiting in development
     return process.env.NODE_ENV === 'development';
   },
