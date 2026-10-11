@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "build": "npm install --no-audit --no-fund && node --check src/server.js && echo 'Server build complete (plain Node.js, no transpilation required)'",
+    "build": "node --check src/server.js && echo 'Server build complete (plain Node.js, no transpilation required)'",
     "dev": "node --watch src/server.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
